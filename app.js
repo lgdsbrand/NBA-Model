@@ -156,34 +156,53 @@ async function init(){
   const L = k => { const i=labels.findIndex(x=>x===k.toLowerCase()); return (i>-1&&!isNaN(vals[i]))?vals[i]:NaN; };
   S.league={ pace:safe(L("pace"),105), ppg:safe(L("points"),115), oe:safe(L("off efficiency"),1.12), de:safe(L("def efficiency"),1.12) };
 
-  // teams + baseline PER from default lineups
-  const tIdx=colLetterToIdx(COLS.lineups.team);
-  const teams=[];
-  for(let i=1;i<lineupsRows.length;i++){
-    const t=String(lineupsRows[i][tIdx]||"").trim();
-    if(!t) continue;
-    teams.push(t);
-    const defLu = defaultLineupForTeam(t, lineupsRows);
-    S.teamPER[t]=lineupWeightedPER(defLu, statsRows);
-  }
-  S.teams=[...new Set(teams)].sort();
+  // --- teams + baseline PER from default lineups (robust) ---
+const tIdx = colLetterToIdx(COLS.lineups.team);
+let teams = [];
 
-  // fill dropdowns
-  const aSel=document.getElementById("awayTeam");
-  const hSel=document.getElementById("homeTeam");
-  S.teams.forEach(t=>{
-    const a=document.createElement("option"); a.value=t; a.textContent=t; aSel.appendChild(a);
-    const b=document.createElement("option"); b.value=t; b.textContent=t; hSel.appendChild(b);
+for (let i = 1; i < lineupsRows.length; i++) {
+  const raw = lineupsRows[i][tIdx];
+  const t = (raw == null ? "" : String(raw)).trim();
+  if (t) teams.push(t);
+}
+// unique + sorted
+teams = [...new Set(teams)].sort();
+
+// Fallback: if Lineups tab is empty/mis-pointed, try OEFF table keys
+if (teams.length === 0) {
+  teams = Object.keys(S.oeff || {}).filter(Boolean).sort();
+  console.warn("[NBA] Lineups tab yielded no teams; falling back to OEFF keys. Check LINEUPS_URL gid and COLS.lineups.team.");
+}
+
+// Precompute baseline PER from default lineups
+S.teams = teams;
+S.teamPER = {};
+for (const t of S.teams) {
+  const defLu = defaultLineupForTeam(t, lineupsRows);
+  S.teamPER[t] = lineupWeightedPER(defLu, statsRows);
+}
+
+// --- fill dropdowns safely ---
+const awaySel = document.getElementById("awayTeam");
+const homeSel = document.getElementById("homeTeam");
+awaySel.innerHTML = "";
+homeSel.innerHTML = "";
+
+if (S.teams.length === 0) {
+  document.getElementById("status").textContent =
+    "No teams found. Verify LINEUPS_URL (correct gid) and that team names are in column " + COLS.lineups.team + ".";
+} else {
+  S.teams.forEach(t => {
+    const a = document.createElement("option"); a.value = t; a.textContent = t; awaySel.appendChild(a);
+    const b = document.createElement("option"); b.value = t; b.textContent = t; homeSel.appendChild(b);
   });
-  if(S.teams.length>1) hSel.selectedIndex=1;
+  if (S.teams.length > 1) homeSel.selectedIndex = 1;
+  document.getElementById("status").textContent = "Ready.";
+}
 
-  // show lineup editors when team changes
-  aSel.addEventListener("change",()=>renderEditors());
-  hSel.addEventListener("change",()=>renderEditors());
-  document.getElementById("saveAway").addEventListener("click", ()=>saveEditor("away"));
-  document.getElementById("resetAway").addEventListener("click", ()=>resetEditor("away"));
-  document.getElementById("saveHome").addEventListener("click", ()=>saveEditor("home"));
-  document.getElementById("resetHome").addEventListener("click", ()=>resetEditor("home"));
+// show editors on change and render once
+awaySel.addEventListener("change", () => renderEditors());
+homeSel.addEventListener("change", () => renderEditors());
 
   renderEditors();
   document.getElementById("status").textContent="Ready.";
