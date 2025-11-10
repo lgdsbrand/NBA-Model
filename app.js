@@ -20,7 +20,7 @@ const LEAGUE_URL     = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBKVlsk
 /* 2) COLUMN LETTER MAP (no headers required) */
 const COLS = {
   // Player tab: if you don’t have a Team column, set team:null
-  player:  { team:"null", player:"B", g:"F", mp:"H", per:"I", usg:"T" },
+  player:  { team: null, player:"B", g:"F", mp:"H", per:"I", usg:"T" },
 
   // Lineups tab (matches your screenshot)
   lineups: { team:"A", g1:"B", g2:"C", f1:"D", f2:"E", c:"F" },
