@@ -66,7 +66,13 @@ const hardTrim = s => String(s ?? "").replace(/\uFEFF/g,"").replace(/\u00A0/g," 
 
 async function loadCSV(url){
   return new Promise((resolve,reject)=>{
-    Papa.parse(url,{download:true,skipEmptyLines:true,complete:r=>resolve(r.data),error:reject});
+    Papa.parse(url,{download:true,skipEmptyLines:true,complete:r=>resolve(r.data),error:err=>{
+      const s = document.getElementById("status");
+      if (s) s.textContent = "Failed to load: " + url;
+      console.error("CSV load failed:", url, err);
+      reject(err);
+    }
+                   });
   });
 }
 
