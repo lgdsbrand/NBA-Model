@@ -3,20 +3,20 @@
  ****************************************************/
 
 /* 1) PASTE YOUR CSV LINKS */
-const STATS_URL      = "https://docs.google.com/spreadsheets/d/REPLACE/export?format=csv&gid=STATS";
-const LINEUPS_URL    = "https://docs.google.com/spreadsheets/d/REPLACE/export?format=csv&gid=LINEUPS";
-const OEFF_URL       = "https://docs.google.com/spreadsheets/d/REPLACE/export?format=csv&gid=OEFF";
-const DEFF_URL       = "https://docs.google.com/spreadsheets/d/REPLACE/export?format=csv&gid=DEFF";
-const PACE_URL       = "https://docs.google.com/spreadsheets/d/REPLACE/export?format=csv&gid=PACE";
-const OREB_URL       = "https://docs.google.com/spreadsheets/d/REPLACE/export?format=csv&gid=OREB";
-const OPP_OREB_URL   = "https://docs.google.com/spreadsheets/d/REPLACE/export?format=csv&gid=OPP_OREB";
-const DREB_URL       = "https://docs.google.com/spreadsheets/d/REPLACE/export?format=csv&gid=DREB";
-const OPP_DREB_URL   = "https://docs.google.com/spreadsheets/d/REPLACE/export?format=csv&gid=OPP_DREB";
-const LEAGUE_URL     = "https://docs.google.com/spreadsheets/d/REPLACE/export?format=csv&gid=LEAGUE";
+const Players_URL      = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBKVlskmdHsujbUSOK_73O32-atb-RXYaWuqZL6THtbkWrYx8DTH3s8vfmsbxN9mxzBd0FiTzz49KI/pub?gid=2033299676&single=true&output=csv";
+const LINEUPS_URL    = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBKVlskmdHsujbUSOK_73O32-atb-RXYaWuqZL6THtbkWrYx8DTH3s8vfmsbxN9mxzBd0FiTzz49KI/pub?gid=975459408&single=true&output=csv";
+const OEFF_URL       = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBKVlskmdHsujbUSOK_73O32-atb-RXYaWuqZL6THtbkWrYx8DTH3s8vfmsbxN9mxzBd0FiTzz49KI/pub?gid=1030421164&single=true&output=csv";
+const DEFF_URL       = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBKVlskmdHsujbUSOK_73O32-atb-RXYaWuqZL6THtbkWrYx8DTH3s8vfmsbxN9mxzBd0FiTzz49KI/pub?gid=1401009495&single=true&output=csv";
+const PACE_URL       = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBKVlskmdHsujbUSOK_73O32-atb-RXYaWuqZL6THtbkWrYx8DTH3s8vfmsbxN9mxzBd0FiTzz49KI/pub?gid=1579578655&single=true&output=csv";
+const OREB_URL       = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBKVlskmdHsujbUSOK_73O32-atb-RXYaWuqZL6THtbkWrYx8DTH3s8vfmsbxN9mxzBd0FiTzz49KI/pub?gid=1907720061&single=true&output=csv";
+const OPP_OREB_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBKVlskmdHsujbUSOK_73O32-atb-RXYaWuqZL6THtbkWrYx8DTH3s8vfmsbxN9mxzBd0FiTzz49KI/pub?gid=1902898168&single=true&output=csv";
+const DREB_URL       = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBKVlskmdHsujbUSOK_73O32-atb-RXYaWuqZL6THtbkWrYx8DTH3s8vfmsbxN9mxzBd0FiTzz49KI/pub?gid=957131207&single=true&output=csv";
+const OPP_DREB_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBKVlskmdHsujbUSOK_73O32-atb-RXYaWuqZL6THtbkWrYx8DTH3s8vfmsbxN9mxzBd0FiTzz49KI/pub?gid=32364573&single=true&output=csv";
+const LEAGUE_URL     = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBKVlskmdHsujbUSOK_73O32-atb-RXYaWuqZL6THtbkWrYx8DTH3s8vfmsbxN9mxzBd0FiTzz49KI/pub?gid=1422185850&single=true&output=csv";
 
 /* 2) COLUMN LETTER MAP (no headers required) */
 const COLS = {
-  stats:  { team:"A", player:"B", g:"F", mp:"H", per:"I", usg:"T" }, // if no team col, set team:null
+  players:  { team:"null", player:"B", g:"F", mp:"H", per:"I", usg:"T" }, // if no team col, set team:null
   lineups:{ team:"A", g1:"B", g2:"C", f1:"D", f2:"E", c:"F" },
   oreb:   { team:"B", haF:"F", haG:"G", l3:"D" },
   dreb:   { team:"B", haF:"F", haG:"G", l3:"D" },
