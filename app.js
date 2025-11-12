@@ -1,27 +1,31 @@
 /****************************************************
  * NBA MODEL — editable lineups + full player pool
  * Uses PLAYER tab (no Team col needed).
- * Static front-end friendly (Vercel/Netlify).
+ * Adds:
+ *  - Back-to-back toggles (B2B penalty)
+ *  - Stats Comparison panel
+ *  - Save Game table
+ *  - Type-ahead players via <datalist>
  ****************************************************/
 
 /* 1) PASTE YOUR CSV LINKS */
-const PLAYER_URL      = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBKVlskmdHsujbUSOK_73O32-atb-RXYaWuqZL6THtbkWrYx8DTH3s8vfmsbxN9mxzBd0FiTzz49KI/pub?gid=2033299676&single=true&output=csv";
-const LINEUPS_URL    = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBKVlskmdHsujbUSOK_73O32-atb-RXYaWuqZL6THtbkWrYx8DTH3s8vfmsbxN9mxzBd0FiTzz49KI/pub?gid=975459408&single=true&output=csv";
-const OEFF_URL       = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBKVlskmdHsujbUSOK_73O32-atb-RXYaWuqZL6THtbkWrYx8DTH3s8vfmsbxN9mxzBd0FiTzz49KI/pub?gid=1030421164&single=true&output=csv";
-const DEFF_URL       = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBKVlskmdHsujbUSOK_73O32-atb-RXYaWuqZL6THtbkWrYx8DTH3s8vfmsbxN9mxzBd0FiTzz49KI/pub?gid=1401009495&single=true&output=csv";
-const PACE_URL       = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBKVlskmdHsujbUSOK_73O32-atb-RXYaWuqZL6THtbkWrYx8DTH3s8vfmsbxN9mxzBd0FiTzz49KI/pub?gid=1579578655&single=true&output=csv";
-const OREB_URL       = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBKVlskmdHsujbUSOK_73O32-atb-RXYaWuqZL6THtbkWrYx8DTH3s8vfmsbxN9mxzBd0FiTzz49KI/pub?gid=1907720061&single=true&output=csv";
-const OPP_OREB_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBKVlskmdHsujbUSOK_73O32-atb-RXYaWuqZL6THtbkWrYx8DTH3s8vfmsbxN9mxzBd0FiTzz49KI/pub?gid=1902898168&single=true&output=csv";
-const DREB_URL       = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBKVlskmdHsujbUSOK_73O32-atb-RXYaWuqZL6THtbkWrYx8DTH3s8vfmsbxN9mxzBd0FiTzz49KI/pub?gid=957131207&single=true&output=csv";
-const OPP_DREB_URL   = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBKVlskmdHsujbUSOK_73O32-atb-RXYaWuqZL6THtbkWrYx8DTH3s8vfmsbxN9mxzBd0FiTzz49KI/pub?gid=32364573&single=true&output=csv";
-const LEAGUE_URL     = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBKVlskmdHsujbUSOK_73O32-atb-RXYaWuqZL6THtbkWrYx8DTH3s8vfmsbxN9mxzBd0FiTzz49KI/pub?gid=1422185850&single=true&output=csv";
+const PLAYER_URL     = "https://docs.google.com/spreadsheets/d/REPLACE/export?format=csv&gid=PLAYER";
+const LINEUPS_URL    = "https://docs.google.com/spreadsheets/d/REPLACE/export?format=csv&gid=LINEUPS";
+const OEFF_URL       = "https://docs.google.com/spreadsheets/d/REPLACE/export?format=csv&gid=OEFF";
+const DEFF_URL       = "https://docs.google.com/spreadsheets/d/REPLACE/export?format=csv&gid=DEFF";
+const PACE_URL       = "https://docs.google.com/spreadsheets/d/REPLACE/export?format=csv&gid=PACE";
+const OREB_URL       = "https://docs.google.com/spreadsheets/d/REPLACE/export?format=csv&gid=OREB";
+const OPP_OREB_URL   = "https://docs.google.com/spreadsheets/d/REPLACE/export?format=csv&gid=OPP_OREB";
+const DREB_URL       = "https://docs.google.com/spreadsheets/d/REPLACE/export?format=csv&gid=DREB";
+const OPP_DREB_URL   = "https://docs.google.com/spreadsheets/d/REPLACE/export?format=csv&gid=OPP_DREB";
+const LEAGUE_URL     = "https://docs.google.com/spreadsheets/d/REPLACE/export?format=csv&gid=LEAGUE";
 
 /* 2) COLUMN LETTER MAP (no headers required) */
 const COLS = {
   // Player tab: NO team column (set to null)
   player:  { team: null, player:"B", g:"F", mp:"H", per:"I", usg:"T" },
 
-  // Lineups tab (your screenshot)
+  // Lineups tab
   lineups: { team:"A", g1:"B", g2:"C", f1:"D", f2:"E", c:"F" },
 
   // TeamRankings tabs
@@ -34,15 +38,16 @@ const COLS = {
   pace:   { team:"B", haF:"F", haG:"G" }
 };
 
-/* 3) MODEL WEIGHTS (tune later) */
+/* 3) MODEL WEIGHTS */
 const BLEND_SZN = 0.70;
 const PER_K     = 0.10;
 const ORB_W     = 60;
 const DRB_W     = 40;
 const HCA_PTS   = 2;
+const B2B_PENALTY = 1.0;  // points to subtract if B2B toggle is on
 const WIN_SIGMA = 6.5;
 
-/* 4) INLINE DEBUG (open app with ?debug=1) */
+/* 4) INLINE DEBUG (?debug=1) */
 const DEBUG = new URLSearchParams(location.search).get("debug") === "1";
 function dshow(){ const w=document.getElementById("debugWrap"); if(w) w.style.display="block"; }
 function dlog(...args){ if(!DEBUG) return; dshow(); const el=document.getElementById("debug"); if(!el) return;
@@ -172,6 +177,17 @@ async function init(){
     }
     S.allPlayers=[...new Set(names)].sort();
     dlog("[Players] total:", S.allPlayers.length, "first 10:", S.allPlayers.slice(0,10));
+
+    // Fill datalist for type-ahead inputs
+    const dl=document.getElementById("playerList");
+    if(dl){
+      dl.innerHTML="";
+      S.allPlayers.forEach(p=>{
+        const opt=document.createElement("option");
+        opt.value=p;
+        dl.appendChild(opt);
+      });
+    }
   })();
 
   // Teams from Lineups
@@ -211,6 +227,12 @@ async function init(){
   document.getElementById("saveHome").addEventListener("click", ()=>saveEditor("home"));
   document.getElementById("resetHome").addEventListener("click", ()=>resetEditor("home"));
 
+  // Extra buttons
+  const compareBtn=document.getElementById("compareBtn");
+  if(compareBtn) compareBtn.addEventListener("click", compareStats);
+  const saveBtn=document.getElementById("saveGameBtn");
+  if(saveBtn) saveBtn.addEventListener("click", saveGame);
+
   renderEditors();
 }
 
@@ -241,12 +263,10 @@ function renderOneEditor(side, team){
             : defaultLineupForTeam(team, S.lineups);
 
   ["g1","g2","f1","f2","c"].forEach((slot,idx)=>{
-    const sel=document.getElementById(ids[slot]); sel.innerHTML="";
-    const empty=document.createElement("option"); empty.value=""; empty.textContent="—"; sel.appendChild(empty);
-    roster.forEach(p=>{
-      const opt=document.createElement("option"); opt.value=p; opt.textContent=p;
-      if(cur[idx]===p) opt.selected=true; sel.appendChild(opt);
-    });
+    const input=document.getElementById(ids[slot]);
+    if(!input) return;
+    // If current player is in roster, keep; otherwise just leave whatever is typed
+    if(cur[idx]) input.value = cur[idx];
   });
 
   const per=lineupWeightedPER(getEditorLineup(side), S.player);
@@ -255,7 +275,7 @@ function renderOneEditor(side, team){
 
 function getEditorLineup(side){
   return [`${side}_g1`,`${side}_g2`,`${side}_f1`,`${side}_f2`,`${side}_c`]
-    .map(id=>hardTrim(document.getElementById(id).value)).filter(Boolean);
+    .map(id=>hardTrim(document.getElementById(id)?.value)).filter(Boolean);
 }
 
 function saveEditor(side){
@@ -279,6 +299,8 @@ function predict(){
   const homeTeam=document.getElementById("homeTeam").value;
   const bookSpread=parseFloat(document.getElementById("bookSpread").value);
   const bookTotal=parseFloat(document.getElementById("bookTotal").value);
+  const awayB2B = document.getElementById("awayB2B")?.checked ?? false;
+  const homeB2B = document.getElementById("homeB2B")?.checked ?? false;
   const L=S.league;
 
   const A_per = isNaN(S.teamPER[awayTeam]) ? 15 : S.teamPER[awayTeam];
@@ -317,6 +339,10 @@ function predict(){
   let A_pts = g_pace*A_ppp + ORB_W*A_or_edge/100 + DRB_W*A_dr_edge/100;
   let H_pts = g_pace*H_ppp + ORB_W*H_or_edge/100 + DRB_W*H_dr_edge/100 + HCA_PTS;
 
+  // Back-to-back penalty
+  if(awayB2B) A_pts -= B2B_PENALTY;
+  if(homeB2B) H_pts -= B2B_PENALTY;
+
   const targetTotal = L.ppg*2;
   const total0 = A_pts + H_pts;
   if(total0>0){ const k=targetTotal/total0; A_pts*=k; H_pts*=k; }
@@ -350,7 +376,88 @@ function predict(){
   document.getElementById("spreadPlay").textContent=spreadPlay;
 }
 
-/* 12) Wire up */
+/* 12) Stats comparison */
+function compareStats(){
+  const away=document.getElementById("awayTeam").value;
+  const home=document.getElementById("homeTeam").value;
+  const L=S.league;
+  const div=document.getElementById("comparison");
+  if(!div) return;
+
+  function valOffReb(tm,isHome){
+    const row=S.oreb[tm]; if(!row) return NaN;
+    return isHome ? row.Home : row.Away;
+  }
+  function valDefReb(tm,isHome){
+    const row=S.dreb[tm]; if(!row) return NaN;
+    return isHome ? row.Home : row.Away;
+  }
+  function valPace(tm,isHome){
+    const row=S.pace[tm]; if(!row) return L.pace;
+    return isHome ? row.Home : row.Away;
+  }
+  function valOffEff(tm,isHome){
+    const row=S.oeff[tm]; if(!row) return L.oe;
+    return blend(isHome?row.Home:row.Away, row.L3);
+  }
+  function valDefEff(tm,isHome){
+    const row=S.deff[tm]; if(!row) return L.de;
+    return blend(isHome?row.Home:row.Away, row.L3);
+  }
+
+  const rows = [
+    { label:"Off Reb %", a:valOffReb(away,false), h:valOffReb(home,true), higher:true,  fmt:v=> (v*100).toFixed(1)+"%" },
+    { label:"Def Reb %", a:valDefReb(away,false), h:valDefReb(home,true), higher:true,  fmt:v=> (v*100).toFixed(1)+"%" },
+    { label:"Pace",      a:valPace(away,false),   h:valPace(home,true),   higher:true,  fmt:v=> v.toFixed(1) },
+    { label:"Off Eff",   a:valOffEff(away,false), h:valOffEff(home,true), higher:true,  fmt:v=> v.toFixed(3) },
+    { label:"Def Eff",   a:valDefEff(away,false), h:valDefEff(home,true), higher:false, fmt:v=> v.toFixed(3) },
+    { label:"Lineup PER",a:S.teamPER[away],       h:S.teamPER[home],      higher:true,  fmt:v=> v.toFixed(2) }
+  ];
+
+  let html = `<h3>Stat Comparison</h3><table class="compare-table"><thead><tr>
+    <th>Stat</th><th>${away}</th><th>${home}</th></tr></thead><tbody>`;
+  rows.forEach(r=>{
+    const a = r.a, h = r.h;
+    const aWin = r.higher ? a>h : a<h;
+    const hWin = r.higher ? h>a : h<a;
+    const aClass = aWin ? "fav-away" : "";
+    const hClass = hWin ? "fav-home" : "";
+    const fa = isNaN(a) ? "-" : r.fmt(a);
+    const fh = isNaN(h) ? "-" : r.fmt(h);
+    html += `<tr><td>${r.label}</td><td class="${aClass}">${fa}</td><td class="${hClass}">${fh}</td></tr>`;
+  });
+  html += "</tbody></table>";
+  div.innerHTML = html;
+}
+
+/* 13) Save game predictions */
+function saveGame(){
+  const body=document.getElementById("savedGamesBody");
+  if(!body) return;
+
+  const away=document.getElementById("awayTeam").value;
+  const home=document.getElementById("homeTeam").value;
+  const awayScore=document.getElementById("awayScore").textContent || "";
+  const homeScore=document.getElementById("homeScore").textContent || "";
+  const modelTotal=document.getElementById("modelTotal").textContent || "";
+  const bookTotal=document.getElementById("bookTotal").value || "";
+  const modelSpread=document.getElementById("modelSpread").textContent || "";
+  const bookSpread=document.getElementById("bookSpread").value || "";
+
+  const tr=document.createElement("tr");
+  tr.innerHTML = `
+    <td>${away}</td>
+    <td>${home}</td>
+    <td>${awayScore}</td>
+    <td>${homeScore}</td>
+    <td>${modelTotal}</td>
+    <td>${bookTotal}</td>
+    <td>${modelSpread}</td>
+    <td>${bookSpread}</td>`;
+  body.appendChild(tr);
+}
+
+/* 14) Wire up */
 document.getElementById("predictBtn").addEventListener("click", predict);
 init().catch(err=>{
   document.getElementById("status").textContent="Load error — check CSV links/permissions in app.js";
