@@ -29,7 +29,7 @@ const COLS = {
 
 /* 3) MODEL WEIGHTS */
 const BLEND_SZN   = 0.7;
-const PER_K       = 0.08;
+const PER_K       = 0.06;
 const REB_K       = 0.25;
 const HCA_PTS     = 2.0;
 const B2B_PENALTY = 1.0;
