@@ -1,178 +1,254 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NBA Game Predictor</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NBA Game Predictor</title>
 
-    <style>
-        body {
-            background: #0d1117;
-            color: #e6edf3;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
+  <style>
+    body {
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
 
-        h1 {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+    h1 {
+      text-align: center;
+      margin-bottom: 24px;
+    }
 
-        select, input {
-            width: 100%;
-            padding: 10px;
-            margin: 6px 0 16px 0;
-            border-radius: 6px;
-            border: 1px solid #555;
-            background-color: #161b22;
-            color: white;
-        }
+    h2 {
+      margin-top: 0;
+    }
 
-        .container {
-            max-width: 900px;
-            margin: auto;
-        }
+    select,
+    input[type="number"],
+    input.player-input {
+      width: 100%;
+      padding: 10px;
+      margin: 6px 0 14px 0;
+      border-radius: 6px;
+      border: 1px solid #555;
+      background-color: #161b22;
+      color: white;
+      box-sizing: border-box;
+    }
 
-        .section {
-            background: #161b22;
-            padding: 20px;
-            margin-bottom: 22px;
-            border-radius: 12px;
-        }
+    .container {
+      max-width: 900px;
+      margin: 0 auto 40px auto;
+    }
 
-        .b2b-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0 20px 0;
-        }
+    .section {
+      background: #161b22;
+      padding: 18px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+    }
 
-        label {
-            font-size: 15px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
+    label {
+      font-size: 14px;
+      display: block;
+      margin-bottom: 4px;
+    }
 
-        button {
-            background: #2386f4;
-            color: white;
-            padding: 10px 16px;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
+    .lineup-box {
+      background: #0f1620;
+      padding: 14px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
 
-        button:hover {
-            background: #3b9bff;
-        }
+    .b2b-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 13px;
+    }
 
-        .result {
-            background: #0f1620;
-            padding: 18px;
-            border-radius: 12px;
-            margin-top: 20px;
-            line-height: 1.7;
-        }
+    .b2b-row input {
+      width: auto;
+      margin: 0;
+    }
 
-        .lineup-box {
-            padding: 16px;
-            background: #0f1620;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-    </style>
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    button {
+      background: #2386f4;
+      color: white;
+      padding: 9px 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #3b9bff;
+    }
+
+    .result {
+      background: #0f1620;
+      padding: 16px;
+      border-radius: 12px;
+      margin-top: 16px;
+      line-height: 1.6;
+      font-size: 13px;
+    }
+
+    .compare-table,
+    .saved-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+
+    .compare-table th,
+    .compare-table td,
+    .saved-table th,
+    .saved-table td {
+      border: 1px solid #30363d;
+      padding: 4px 6px;
+      text-align: center;
+    }
+
+    .compare-table th,
+    .saved-table th {
+      background: #111827;
+    }
+
+    .fav-away,
+    .fav-home {
+      color: #4ade80;
+      font-weight: 600;
+    }
+
+    .lineup-per {
+      margin-top: 6px;
+      font-size: 12px;
+      opacity: 0.8;
+    }
+  </style>
 </head>
 
 <body>
-    <div class="container">
-        <h1>NBA Game Predictor</h1>
+  <div class="container">
+    <h1>NBA Game Predictor</h1>
 
-        <!-- TEAM SELECTORS -->
-        <div class="section">
-            <h2>Select Teams</h2>
-            <label>Away Team</label>
-            <select id="awayTeam"></select>
+    <!-- SELECT TEAMS (old layout style) -->
+    <div class="section">
+      <h2>Select Teams</h2>
 
-            <label>Home Team</label>
-            <select id="homeTeam"></select>
+      <label>Away Team</label>
+      <select id="awayTeam"></select>
 
-            <!-- BACK-TO-BACK TOGGLES -->
-            <div class="b2b-row">
-                <label>
-                    <input type="checkbox" id="awayB2B">
-                    🔘 Away Back-to-Back
-                </label>
+      <label>Home Team</label>
+      <select id="homeTeam"></select>
 
-                <label>
-                    <input type="checkbox" id="homeB2B">
-                    🔘 Home Back-to-Back
-                </label>
-            </div>
+      <label>Book Spread (Home = -)</label>
+      <input id="bookSpread" type="number" step="0.5" />
 
-            <label>Book Spread (Home = -)</label>
-            <input id="bookSpread" type="number" step="0.5"/>
-
-            <label>Book Total</label>
-            <input id="bookTotal" type="number" step="0.5"/>
-        </div>
-
-        <!-- LINEUPS EDITOR -->
-        <div class="section">
-            <h2>Away Lineup — <span id="awayTeamLabel">—</span></h2>
-
-            <div class="lineup-box">
-                <label>Guard 1</label>
-                <select id="away_g1"></select>
-
-                <label>Guard 2</label>
-                <select id="away_g2"></select>
-
-                <label>Forward 1</label>
-                <select id="away_f1"></select>
-
-                <label>Forward 2</label>
-                <select id="away_f2"></select>
-
-                <label>Center</label>
-                <select id="away_c"></select>
-
-                <button id="saveAway">Save Away Lineup</button>
-            </div>
-
-            <h2>Home Lineup — <span id="homeTeamLabel">—</span></h2>
-
-            <div class="lineup-box">
-                <label>Guard 1</label>
-                <select id="home_g1"></select>
-
-                <label>Guard 2</label>
-                <select id="home_g2"></select>
-
-                <label>Forward 1</label>
-                <select id="home_f1"></select>
-
-                <label>Forward 2</label>
-                <select id="home_f2"></select>
-
-                <label>Center</label>
-                <select id="home_c"></select>
-
-                <button id="saveHome">Save Home Lineup</button>
-            </div>
-        </div>
-
-        <!-- PREDICT BUTTON -->
-        <div class="section">
-            <button id="predictBtn">Predict Game</button>
-        </div>
-
-        <!-- RESULTS -->
-        <div id="results" class="result" style="display:none;"></div>
+      <label>Book Total</label>
+      <input id="bookTotal" type="number" step="0.5" />
     </div>
 
-    <script src="app.js"></script>
+    <!-- AWAY LINEUP -->
+    <div class="section">
+      <h2>Away Lineup — <span id="awayTeamLabel">—</span></h2>
+
+      <div class="lineup-box">
+        <label>Guard 1</label>
+        <input id="away_g1" class="player-input" list="playerList" />
+
+        <label>Guard 2</label>
+        <input id="away_g2" class="player-input" list="playerList" />
+
+        <label>Forward 1</label>
+        <input id="away_f1" class="player-input" list="playerList" />
+
+        <label>Forward 2</label>
+        <input id="away_f2" class="player-input" list="playerList" />
+
+        <label>Center</label>
+        <input id="away_c" class="player-input" list="playerList" />
+
+        <div class="button-row">
+          <button id="saveAway">Save Away Lineup</button>
+        </div>
+
+        <div class="b2b-row">
+          <input type="checkbox" id="awayB2B" />
+          <span>🔘 Away Back-to-Back</span>
+        </div>
+
+        <div class="lineup-per" id="awayPerLabel">Lineup PER: —</div>
+      </div>
+    </div>
+
+    <!-- HOME LINEUP -->
+    <div class="section">
+      <h2>Home Lineup — <span id="homeTeamLabel">—</span></h2>
+
+      <div class="lineup-box">
+        <label>Guard 1</label>
+        <input id="home_g1" class="player-input" list="playerList" />
+
+        <label>Guard 2</label>
+        <input id="home_g2" class="player-input" list="playerList" />
+
+        <label>Forward 1</label>
+        <input id="home_f1" class="player-input" list="playerList" />
+
+        <label>Forward 2</label>
+        <input id="home_f2" class="player-input" list="playerList" />
+
+        <label>Center</label>
+        <input id="home_c" class="player-input" list="playerList" />
+
+        <div class="button-row">
+          <button id="saveHome">Save Home Lineup</button>
+        </div>
+
+        <div class="b2b-row">
+          <input type="checkbox" id="homeB2B" />
+          <span>🔘 Home Back-to-Back</span>
+        </div>
+
+        <div class="lineup-per" id="homePerLabel">Lineup PER: —</div>
+      </div>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="section">
+      <div class="button-row">
+        <button id="predictBtn">Predict Game</button>
+        <button id="compareBtn">Stats Comparison</button>
+        <button id="saveGameBtn">Save Game</button>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="results" class="result" style="display:none;"></div>
+
+    <!-- STATS COMPARISON -->
+    <div id="compareBox" class="result" style="display:none;"></div>
+
+    <!-- SAVED GAMES TABLE -->
+    <div id="savedBox" class="result" style="display:none;"></div>
+  </div>
+
+  <!-- global datalist so you can TYPE player names -->
+  <datalist id="playerList"></datalist>
+
+  <script src="app.js"></script>
 </body>
 </html>
