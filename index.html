@@ -1,113 +1,178 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>NBA Model — Lineups + Eff + Rebounds</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NBA Game Predictor</title>
+
+    <style>
+        body {
+            background: #0d1117;
+            color: #e6edf3;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 10px;
+            margin: 6px 0 16px 0;
+            border-radius: 6px;
+            border: 1px solid #555;
+            background-color: #161b22;
+            color: white;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .section {
+            background: #161b22;
+            padding: 20px;
+            margin-bottom: 22px;
+            border-radius: 12px;
+        }
+
+        .b2b-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0 20px 0;
+        }
+
+        label {
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        button {
+            background: #2386f4;
+            color: white;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #3b9bff;
+        }
+
+        .result {
+            background: #0f1620;
+            padding: 18px;
+            border-radius: 12px;
+            margin-top: 20px;
+            line-height: 1.7;
+        }
+
+        .lineup-box {
+            padding: 16px;
+            background: #0f1620;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <h1>NBA Game Predictor</h1>
+    <div class="container">
+        <h1>NBA Game Predictor</h1>
 
-    <div class="row">
-      <div class="col">
-        <label>Away Team</label>
-        <select id="awayTeam"></select>
-      </div>
-      <div class="col">
-        <label>Home Team</label>
-        <select id="homeTeam"></select>
-      </div>
+        <!-- TEAM SELECTORS -->
+        <div class="section">
+            <h2>Select Teams</h2>
+            <label>Away Team</label>
+            <select id="awayTeam"></select>
+
+            <label>Home Team</label>
+            <select id="homeTeam"></select>
+
+            <!-- BACK-TO-BACK TOGGLES -->
+            <div class="b2b-row">
+                <label>
+                    <input type="checkbox" id="awayB2B">
+                    🔘 Away Back-to-Back
+                </label>
+
+                <label>
+                    <input type="checkbox" id="homeB2B">
+                    🔘 Home Back-to-Back
+                </label>
+            </div>
+
+            <label>Book Spread (Home = -)</label>
+            <input id="bookSpread" type="number" step="0.5"/>
+
+            <label>Book Total</label>
+            <input id="bookTotal" type="number" step="0.5"/>
+        </div>
+
+        <!-- LINEUPS EDITOR -->
+        <div class="section">
+            <h2>Away Lineup — <span id="awayTeamLabel">—</span></h2>
+
+            <div class="lineup-box">
+                <label>Guard 1</label>
+                <select id="away_g1"></select>
+
+                <label>Guard 2</label>
+                <select id="away_g2"></select>
+
+                <label>Forward 1</label>
+                <select id="away_f1"></select>
+
+                <label>Forward 2</label>
+                <select id="away_f2"></select>
+
+                <label>Center</label>
+                <select id="away_c"></select>
+
+                <button id="saveAway">Save Away Lineup</button>
+            </div>
+
+            <h2>Home Lineup — <span id="homeTeamLabel">—</span></h2>
+
+            <div class="lineup-box">
+                <label>Guard 1</label>
+                <select id="home_g1"></select>
+
+                <label>Guard 2</label>
+                <select id="home_g2"></select>
+
+                <label>Forward 1</label>
+                <select id="home_f1"></select>
+
+                <label>Forward 2</label>
+                <select id="home_f2"></select>
+
+                <label>Center</label>
+                <select id="home_c"></select>
+
+                <button id="saveHome">Save Home Lineup</button>
+            </div>
+        </div>
+
+        <!-- PREDICT BUTTON -->
+        <div class="section">
+            <button id="predictBtn">Predict Game</button>
+        </div>
+
+        <!-- RESULTS -->
+        <div id="results" class="result" style="display:none;"></div>
     </div>
 
-    <!-- Editable lineups appear after team selection -->
-    <div id="lineupEditors" class="row" style="display:none; gap:22px;">
-      <div class="col card">
-        <h3 id="awayEditorTitle">Away Lineup</h3>
-        <div class="grid2">
-          <label>Guard 1</label><select id="away_g1"></select>
-          <label>Guard 2</label><select id="away_g2"></select>
-          <label>Forward 1</label><select id="away_f1"></select>
-          <label>Forward 2</label><select id="away_f2"></select>
-          <label>Center</label><select id="away_c"></select>
-        </div>
-        <div class="minirow">
-          <button id="saveAway">Save Away Lineup</button>
-          <button id="resetAway" class="ghost">Reset</button>
-        </div>
-        <div class="muted">Lineup PER: <span id="awayPER">—</span></div>
-      </div>
-
-      <div class="col card">
-        <h3 id="homeEditorTitle">Home Lineup</h3>
-        <div class="grid2">
-          <label>Guard 1</label><select id="home_g1"></select>
-          <label>Guard 2</label><select id="home_g2"></select>
-          <label>Forward 1</label><select id="home_f1"></select>
-          <label>Forward 2</label><select id="home_f2"></select>
-          <label>Center</label><select id="home_c"></select>
-        </div>
-        <div class="minirow">
-          <button id="saveHome">Save Home Lineup</button>
-          <button id="resetHome" class="ghost">Reset</button>
-        </div>
-        <div class="muted">Lineup PER: <span id="homePER">—</span></div>
-      </div>
-    </div>
-
-    <div class="b2b-row">
-  <label>
-    <input type="checkbox" id="awayB2B">
-    🔘 Away Back-to-Back
-  </label>
-
-  <label>
-    <input type="checkbox" id="homeB2B">
-    🔘 Home Back-to-Back
-  </label>
-</div>
-
-    <div class="row">
-      <div class="col">
-        <label>Book Spread (Home = -)</label>
-        <input id="bookSpread" type="number" step="0.5" value="-3.5"/>
-      </div>
-      <div class="col">
-        <label>Book Total</label>
-        <input id="bookTotal" type="number" step="0.5" value="225.5"/>
-      </div>
-    </div>
-
-    <button id="predictBtn">Predict</button>
-
-    <div id="status" class="status">Loading data…</div>
-
-    <div id="results" class="card" style="display:none">
-      <h2>Game Prediction Results</h2>
-      <div class="scores">
-        <div><b id="awayName"></b>: <span id="awayScore"></span></div>
-        <div><b id="homeName"></b>: <span id="homeScore"></span></div>
-      </div>
-      <hr/>
-      <div><b>Predicted Winner:</b> <span id="winner"></span></div>
-      <div>
-        <b>Win Probability</b>
-        <ul>
-          <li><span id="awayProb"></span></li>
-          <li><span id="homeProb"></span></li>
-        </ul>
-      </div>
-      <hr/>
-      <div><b>Model Total:</b> <span id="modelTotal"></span> vs <b>Book Total</b> <span id="bookTotalOut"></span></div>
-      <div><b>Total Play:</b> <span id="totalPlay"></span></div>
-      <hr/>
-      <div><b>Model Spread (Home − Away):</b> <span id="modelSpread"></span> vs <b>Book Spread</b> <span id="bookSpreadOut"></span></div>
-      <div><b>Spread Play:</b> <span id="spreadPlay"></span></div>
-    </div>
-  </div>
-
-  <script src="app.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
