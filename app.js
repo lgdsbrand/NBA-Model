@@ -135,7 +135,7 @@ const COLS = {
 
 /* 3) MODEL WEIGHTS (TUNE THESE) ----------------------------- */
 
-const W_LINEUP_PER   = 0.40; // lineup PER
+const W_LINEUP_PER   = 0.50; // lineup PER
 const W_EFF_L5       = 0.20; // L5 off/def eff
 const W_EFF_HA       = 0.15; // H/A eff
 const W_PACE         = 0.18; // pace vs league
